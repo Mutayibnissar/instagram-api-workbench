@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {extractOperations, filterOperations, markdown, summarizeOperations} from './route-audit.mjs';
+import {csv, extractOperations, filterOperations, markdown, summarizeOperations} from './route-audit.mjs';
 
 test('extracts method-level evidence without claiming live verification', () => {
   const operations = extractOperations({paths:{
@@ -81,4 +81,17 @@ test('escapes pipe characters in Markdown table cells with one escape', () => {
   assert.ok(report.includes('/users/{id}' + slash + '|archive'));
   assert.ok(report.includes('get' + slash + '|archive'));
   assert.ok(!report.includes(slash + slash + '|archive'));
+});
+
+test('exports spreadsheet-friendly CSV with escaped quotes and stable rows', () => {
+  const operations = extractOperations({paths:{
+    '/users/"quoted"|archive':{get:{operationId:'get,"archive',summary:'Contains, comma and "quote"\\nsecond line'}}
+  }});
+  const report = csv(operations);
+  const rows = report.split('\\n');
+  assert.equal(rows.length, 2);
+  assert.ok(rows[0].startsWith('"Method","Route"'));
+  assert.ok(rows[1].startsWith('"GET",'));
+  assert.ok(rows[1].includes('""quoted""|archive'));
+  assert.ok(rows[1].includes('""quote"" second line'));
 });
