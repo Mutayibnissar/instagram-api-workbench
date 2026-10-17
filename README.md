@@ -13,7 +13,7 @@ These counts describe recovered client configuration, **not endpoints verified t
 Install Node.js 22.19.0 or later for development and validation, then:
 
 ```sh
-git clone https://github.com/kernelpanic0x11/instagram-api-workbench.git
+git clone https://github.com/Mutayibnissar/instagram-api-workbench.git
 cd instagram-api-workbench/api
 node server.mjs
 ```
@@ -83,6 +83,25 @@ python3 bulk-trace/test_extract.py
 Validation checks OpenAPI structure, JSON/YAML parity, template collisions, path parameters, operation IDs, and provenance. Tests exercise adversarial DEX tracking and mocked proxy forwarding, method/body/query preservation, credential clearing, origin/token checks, redirects, and error handling. The Playwright smoke test loads the local UI at desktop and mobile sizes and checks core navigation and browser runtime errors. No account credentials are used by the tests.
 
 To repeat extraction, supply your own matching APKs under the ignored `apks/` directory, then run `inventory.py`, `index_strings.py`, and the extraction scripts. Full method decompilation requires REA 6.5.0 and JADX headless MCP 0.7.1; see the [REA Android guide](https://github.com/morluto/rea/blob/main/.agents/skills/reverse-engineer-anything/references/android-applications.md). Original evidence IDs will differ in a new run. Large helper-call evidence is gzip-compressed in the public repository.
+
+## Route review reports
+
+The offline route audit helps prioritize review without making any requests to Instagram:
+
+```sh
+cd api
+npm run audit:routes
+node route-audit.mjs --full > ../ROUTE_EVIDENCE_AUDIT.md
+node route-audit.mjs --full --needs-review > ../ROUTE_REVIEW_QUEUE.md
+node route-audit.mjs --full --writes-only > ../ROUTE_WRITE_OPERATIONS.md
+node route-audit.mjs --json > ../route-evidence-audit.json
+```
+
+- `--needs-review` lists write methods and operations with missing IDs/summaries or undeclared path parameters.
+- `--writes-only` narrows the inventory to POST, PUT, PATCH, and DELETE operations.
+- GitHub Actions publishes the full report, review queue, and write-operation list as the `route-evidence-audit` artifact for 14 days.
+
+These are static documentation checks. They do not verify live Instagram endpoint support, permissions, or payload safety. Review every potentially mutating request before sending it.
 
 ## Local security
 
