@@ -75,10 +75,12 @@ npm ci --ignore-scripts
 npm run build
 npm run validate
 npm test
+npx playwright install chromium
+npm run test:ui
 python3 bulk-trace/test_extract.py
 ```
 
-Validation checks OpenAPI structure, JSON/YAML parity, template collisions, path parameters, operation IDs, and provenance. Tests exercise adversarial DEX tracking and mocked proxy forwarding, method/body/query preservation, credential clearing, origin/token checks, redirects, and error handling. No account credentials are used by the tests.
+Validation checks OpenAPI structure, JSON/YAML parity, template collisions, path parameters, operation IDs, and provenance. Tests exercise adversarial DEX tracking and mocked proxy forwarding, method/body/query preservation, credential clearing, origin/token checks, redirects, and error handling. The Playwright smoke test loads the local UI at desktop and mobile sizes and checks core navigation and browser runtime errors. No account credentials are used by the tests.
 
 To repeat extraction, supply your own matching APKs under the ignored `apks/` directory, then run `inventory.py`, `index_strings.py`, and the extraction scripts. Full method decompilation requires REA 6.5.0 and JADX headless MCP 0.7.1; see the [REA Android guide](https://github.com/morluto/rea/blob/main/.agents/skills/reverse-engineer-anything/references/android-applications.md). Original evidence IDs will differ in a new run. Large helper-call evidence is gzip-compressed in the public repository.
 
