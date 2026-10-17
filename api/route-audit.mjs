@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import {pathToFileURL} from 'node:url';
 
 const METHODS = ['get', 'post', 'put', 'patch', 'delete', 'options', 'head', 'trace'];
 
@@ -75,18 +76,20 @@ function markdown(operations, summary) {
   return lines.join('\n');
 }
 
-const args = new Set(process.argv.slice(2));
-if (args.has('--help')) {
-  console.log('Usage: node route-audit.mjs [--json] [--full]\n  default  print a compact summary\n  --json   print the full machine-readable inventory\n  --full   print the full Markdown inventory');
-} else {
-  const spec = JSON.parse(fs.readFileSync(new URL('./openapi.json', import.meta.url), 'utf8'));
-  const operations = extractOperations(spec);
-  const summary = summarizeOperations(operations);
-  if (args.has('--json')) console.log(JSON.stringify({ summary, operations }, null, 2));
-  else if (args.has('--full')) console.log(markdown(operations, summary));
-  else {
-    console.log('Static route evidence audit (no network requests performed)');
-    console.log(JSON.stringify(summary, null, 2));
-    console.log('Use --full for a Markdown inventory or --json for machine-readable details.');
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const args = new Set(process.argv.slice(2));
+  if (args.has('--help')) {
+    console.log('Usage: node route-audit.mjs [--json] [--full]\\n  default  print a compact summary\\n  --json   print the full machine-readable inventory\\n  --full   print the full Markdown inventory');
+  } else {
+    const spec = JSON.parse(fs.readFileSync(new URL('./openapi.json', import.meta.url), 'utf8'));
+    const operations = extractOperations(spec);
+    const summary = summarizeOperations(operations);
+    if (args.has('--json')) console.log(JSON.stringify({ summary, operations }, null, 2));
+    else if (args.has('--full')) console.log(markdown(operations, summary));
+    else {
+      console.log('Static route evidence audit (no network requests performed)');
+      console.log(JSON.stringify(summary, null, 2));
+      console.log('Use --full for a Markdown inventory or --json for machine-readable details.');
+    }
   }
 }
