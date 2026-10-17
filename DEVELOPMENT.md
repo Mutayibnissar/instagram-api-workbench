@@ -13,7 +13,7 @@ describe candidate routes as supported or stable Instagram APIs.
 
 ## Requirements
 
-- Node.js 20 or later
+- Node.js 22.19.0 or later
 - Python 3.10+ for the synthetic DEX extraction tests
 - Chrome only if you intentionally use the optional browser-login helper
 
@@ -31,6 +31,13 @@ npm start
 
 Open `http://127.0.0.1:8766/`. The workbench is designed to listen on loopback
 only. Do not expose it to a LAN, reverse proxy, tunnel, or public hosting service.
+
+## Local server protections
+
+The local server applies a same-origin Content Security Policy, disables framing,
+sets `nosniff`, limits browser permissions, uses a strict referrer policy, and
+marks responses as non-cacheable. These are defense-in-depth controls, not a
+reason to expose the loopback-only tool to other users.
 
 ## Automated checks
 
