@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
 import {csv, extractOperations, filterOperations, markdown, summarizeOperations} from './route-audit.mjs';
 
 test('extracts method-level evidence without claiming live verification', () => {
@@ -104,4 +105,26 @@ test('neutralizes spreadsheet formula prefixes in exported CSV cells', () => {
   const apostrophe = String.fromCharCode(39);
   assert.ok(report.includes('"' + apostrophe + '=2+2"'));
   assert.ok(report.includes('"' + apostrophe + ' @SUM(A1:A2)"'));
+});
+
+
+test('CLI help documents supported output modes', () => {
+  const script = new URL('./route-audit.mjs', import.meta.url).pathname;
+  const result = spawnSync(process.execPath, [script, '--help'], {encoding:'utf8'});
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /--json \| --full \| --csv/);
+  assert.equal(result.stderr, '');
+});
+
+test('CLI rejects unknown options and conflicting output modes', () => {
+  const script = new URL('./route-audit.mjs', import.meta.url).pathname;
+  const unknown = spawnSync(process.execPath, [script, '--jsonx'], {encoding:'utf8'});
+  assert.equal(unknown.status, 2);
+  assert.match(unknown.stderr, /Unknown option/);
+  const conflicting = spawnSync(process.execPath, [script, '--json', '--csv'], {encoding:'utf8'});
+  assert.equal(conflicting.status, 2);
+  assert.match(conflicting.stderr, /Choose only one output mode/);
+  const duplicate = spawnSync(process.execPath, [script, '--csv', '--csv'], {encoding:'utf8'});
+  assert.equal(duplicate.status, 2);
+  assert.match(duplicate.stderr, /Duplicate options/);
 });
