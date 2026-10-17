@@ -20,9 +20,9 @@ async function waitFor(url,child){
  }
  throw new Error('Server did not become ready');
 }
-function requestWithHost(port,host){
+function requestWithHost(port,host,path='/'){
  return new Promise((resolve,reject)=>{
-  const req=http.get({hostname:'127.0.0.1',port,path:'/',headers:{Host:host}},res=>{
+  const req=http.get({hostname:'127.0.0.1',port,path,headers:{Host:host}},res=>{
    let body='';res.setEncoding('utf8');res.on('data',chunk=>body+=chunk);res.on('end',()=>resolve({status:res.statusCode,body}));
   });
   req.on('error',reject);
@@ -72,7 +72,7 @@ test('static server enforces read-only methods and blocks traversal',async t=>{
  await waitFor(origin+'/',child);
  const post=await fetch(origin+'/',{method:'POST'});
  assert.equal(post.status,405);assert.equal(post.headers.get('allow'),'GET, HEAD');
- const traversal=await fetch(origin+'/%2e%2e%2fserver.mjs');
+ const traversal=await requestWithHost(port,`127.0.0.1:${port}`,'/%2e%2e%2fserver.mjs');
  assert.equal(traversal.status,403);
  const modules=await fetch(origin+'/node_modules/swagger-ui-dist/package.json');
  assert.equal(modules.status,403);
