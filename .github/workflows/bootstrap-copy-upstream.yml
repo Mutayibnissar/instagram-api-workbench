@@ -1,0 +1,68 @@
+name: Bootstrap upstream project copy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/bootstrap-copy-upstream.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: upstream-bootstrap
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out your repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Download the public upstream source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/instagram-api-workbench-upstream
+          curl --fail --location --retry 3 \
+            https://codeload.github.com/kernelpanic0x11/instagram-api-workbench/tar.gz/refs/heads/main \
+            --output /tmp/upstream.tar.gz
+          tar -xzf /tmp/upstream.tar.gz \
+            --strip-components=1 \
+            -C /tmp/instagram-api-workbench-upstream
+
+      - name: Copy upstream files into this repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -a /tmp/instagram-api-workbench-upstream/. .
+          cat > UPSTREAM_ORIGIN.md <<'EOF'
+          # Upstream origin
+
+          This repository is a working copy of the public MIT-licensed project
+          [kernelpanic0x11/instagram-api-workbench](https://github.com/kernelpanic0x11/instagram-api-workbench).
+
+          The upstream LICENSE and third-party notices are retained. This copy is
+          independently maintained; changes here do not modify the upstream project.
+          Review the upstream repository and license before redistributing modified
+          versions. Never commit Instagram session cookies, bearer tokens, or account data.
+          EOF
+
+      - name: Commit and push the copy
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to import."
+            exit 0
+          fi
+          git commit -m "Import upstream Instagram API Workbench"
+          git push origin HEAD:main
