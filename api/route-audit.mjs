@@ -161,10 +161,23 @@ export function markdown(operations, summary) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const args = new Set(process.argv.slice(2));
-  if (args.has('--help')) {
-    console.log('Usage: node route-audit.mjs [--json] [--full] [--csv] [--writes-only] [--needs-review]\n  default       print a compact summary\n  --json        print the machine-readable inventory\n  --full        print the full Markdown inventory\n  --csv         print a spreadsheet-friendly CSV inventory\n  --writes-only include POST/PUT/PATCH/DELETE only\n  --needs-review include operations flagged by static checks');
+  const rawArgs = process.argv.slice(2);
+  const allowedArgs = new Set(['--help', '--json', '--full', '--csv', '--writes-only', '--needs-review']);
+  const unknownArgs = rawArgs.filter(arg => !allowedArgs.has(arg));
+  const outputModes = rawArgs.filter(arg => ['--json', '--full', '--csv'].includes(arg));
+  if (unknownArgs.length) {
+    console.error('Unknown option(s): ' + unknownArgs.join(', ') + '\nRun with --help to see supported options.');
+    process.exitCode = 2;
+  } else if (outputModes.length > 1) {
+    console.error('Choose only one output mode: --json, --full, or --csv.');
+    process.exitCode = 2;
+  } else if (new Set(rawArgs).size !== rawArgs.length) {
+    console.error('Duplicate options are not allowed.');
+    process.exitCode = 2;
+  } else if (rawArgs.includes('--help')) {
+    console.log('Usage: node route-audit.mjs [--json | --full | --csv] [--writes-only] [--needs-review]\n  default       print a compact summary\n  --json        print the machine-readable inventory\n  --full        print the full Markdown inventory\n  --csv         print a spreadsheet-friendly CSV inventory\n  --writes-only include POST/PUT/PATCH/DELETE only\n  --needs-review include operations flagged by static checks');
   } else {
+    const args = new Set(rawArgs);
     const spec = JSON.parse(fs.readFileSync(new URL('./openapi.json', import.meta.url), 'utf8'));
     const allOperations = extractOperations(spec);
     const operations = filterOperations(allOperations, {writesOnly: args.has('--writes-only'), needsReview: args.has('--needs-review')});
