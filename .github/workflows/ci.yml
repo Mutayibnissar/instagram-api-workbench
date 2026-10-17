@@ -35,6 +35,10 @@ jobs:
         run: node --check live.mjs
       - name: Run unit and security regression tests
         run: npm test
+      - name: Install Chromium for browser smoke test
+        run: npx playwright install --with-deps chromium
+      - name: Run desktop/mobile browser smoke test
+        run: npm run test:ui
       - name: Validate OpenAPI and evidence catalog
         run: npm run validate
       - name: Report dependency vulnerabilities
