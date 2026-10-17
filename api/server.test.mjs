@@ -41,7 +41,16 @@ test('local server serves UI with baseline browser security headers',async t=>{
  assert.match(response.headers.get('content-security-policy'),/default-src 'self'/);
  assert.match(response.headers.get('content-security-policy'),/frame-ancestors 'none'/);
  assert.equal(response.headers.get('cache-control'),'no-store');
- assert.match(await response.text(),/Instagram API — Swagger UI/);
+ const html=await response.text();
+ assert.match(html,/Instagram API — Swagger UI/);
+ assert.match(html,/Your API research workspace/);
+ assert.match(html,/href="#request-history"/);
+ const script=await fetch(origin+'/live.mjs');
+ assert.equal(script.status,200);
+ assert.match(script.headers.get('content-type'),/javascript/);
+ const css=await fetch(origin+'/live.css');
+ assert.equal(css.status,200);
+ assert.match(css.headers.get('content-type'),/text\/css/);
 });
 test('local server rejects foreign hosts and returns generic missing-file responses',async t=>{
  const port=await freePort(),origin=`http://127.0.0.1:${port}`;
