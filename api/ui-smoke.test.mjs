@@ -39,6 +39,14 @@ test('premium workspace loads and remains navigable in desktop and mobile viewpo
  assert.equal(await page.locator('.workspace-nav a').count(),5);
  assert.equal(await page.locator('#connection-status').count(),1);
  assert.equal(await page.locator('#activity-list .activity-empty').count(),1);
+ assert.equal(await page.locator('.unresolved-evidence-filter option').count(),3);
+ assert.match(await page.locator('.unresolved-count').innerText(),/matching routes/i);
+ await page.locator('.unresolved-filter').fill('route-filter-no-match-should-exist-0');
+ assert.match(await page.locator('.unresolved-count').innerText(),/^0 matching routes/i);
+ await page.locator('.unresolved-filter').fill('');
+ await page.locator('.unresolved-evidence-filter').selectOption('with');
+ assert.match(await page.locator('.unresolved-count').innerText(),/matching routes/i);
+ await page.locator('.unresolved-evidence-filter').selectOption('all');
  await page.locator('.workspace-nav a[href="#live-tools"]').click();
  await page.waitForFunction(()=>location.hash==='#live-tools');
  await page.locator('#manual-request summary').click();
