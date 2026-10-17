@@ -81,3 +81,20 @@ test('disconnect during browser launch closes the stale browser',async()=>{
  await f.request('/api/disconnect',{method:'POST',headers:{'x-local-token':token}});resolve({close:async()=>{closed=true}});
  assert.equal((await pending).status,409);assert.equal(closed,true);assert.equal((await f.request('/api/status')).json().connected,false);
 });
+
+test('oversized incoming bodies are rejected before any upstream request',async()=>{
+ let calls=0;const f=fixture(async()=>{calls++;return new Response('unexpected')});const token=await f.connect();
+ const body='x'.repeat(10*1024*1024+1);
+ const result=await f.request('/proxy/feed/timeline/',{method:'POST',headers:{'x-local-token':token,'content-type':'text/plain'},body});
+ assert.equal(result.status,400);assert.match(result.json().error,/body exceeds size limit/i);assert.equal(calls,0);
+});
+test('oversized upstream responses become gateway errors rather than client errors',async()=>{
+ let chunks=0;const f=fixture(async()=>new Response(new ReadableStream({pull(controller){if(chunks>=33){controller.close();return;}chunks++;controller.enqueue(new Uint8Array(1024*1024));}})));
+ const token=await f.connect();const result=await f.request('/proxy/feed/timeline/',{headers:{'x-local-token':token}});
+ assert.equal(result.status,502);assert.match(result.json().error,/could not complete/i);assert(!result.text.includes('sessionid=PRIVATE'));
+});
+test('upstream timeouts return a bounded diagnostic without leaking transport details',async()=>{
+ const f=fixture(async()=>{const error=new Error('socket timeout with SECRET');error.name='TimeoutError';throw error;});
+ const token=await f.connect({bearer:'SECRET'});const result=await f.request('/proxy/feed/timeline/',{headers:{'x-local-token':token}});
+ assert.equal(result.status,502);assert.match(result.json().error,/timed out/i);assert(!result.text.includes('SECRET'));
+});
