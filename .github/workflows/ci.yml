@@ -41,6 +41,8 @@ jobs:
         run: npm run test:ui
       - name: Validate OpenAPI and evidence catalog
         run: npm run validate
+      - name: Generate offline route evidence audit
+        run: npm run audit:routes
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
 
