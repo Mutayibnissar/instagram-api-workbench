@@ -95,3 +95,13 @@ test('exports spreadsheet-friendly CSV with escaped quotes and stable rows', () 
   assert.ok(rows[1].includes('""quoted""|archive'));
   assert.ok(rows[1].includes('""quote"" second line'));
 });
+
+test('neutralizes spreadsheet formula prefixes in exported CSV cells', () => {
+  const operations = extractOperations({paths:{
+    '/safe-route':{get:{operationId:'=2+2',summary:' @SUM(A1:A2)'}}
+  }});
+  const report = csv(operations);
+  const apostrophe = String.fromCharCode(39);
+  assert.ok(report.includes('"' + apostrophe + '=2+2"'));
+  assert.ok(report.includes('"' + apostrophe + ' @SUM(A1:A2)"'));
+});
