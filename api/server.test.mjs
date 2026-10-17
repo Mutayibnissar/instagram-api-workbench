@@ -72,7 +72,7 @@ test('static server enforces read-only methods and blocks traversal',async t=>{
  await waitFor(origin+'/',child);
  const post=await fetch(origin+'/',{method:'POST'});
  assert.equal(post.status,405);assert.equal(post.headers.get('allow'),'GET, HEAD');
- const traversal=await fetch(origin+'/%2e%2e/server.mjs');
+ const traversal=await fetch(origin+'/%2e%2e%2fserver.mjs');
  assert.equal(traversal.status,403);
  const modules=await fetch(origin+'/node_modules/swagger-ui-dist/package.json');
  assert.equal(modules.status,403);
