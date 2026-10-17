@@ -7,7 +7,8 @@
     "build": "node build.mjs",
     "validate": "node validate.mjs",
     "start": "node server.mjs",
-    "test": "node --test proxy.test.mjs auth-check.test.mjs response-summary.test.mjs browser-session.test.mjs server.test.mjs"
+    "test": "node --test proxy.test.mjs auth-check.test.mjs response-summary.test.mjs browser-session.test.mjs server.test.mjs",
+    "test:ui": "node --test ui-smoke.test.mjs"
   },
   "keywords": [],
   "author": "",
