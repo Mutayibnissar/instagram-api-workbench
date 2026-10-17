@@ -1,0 +1,54 @@
+name: Workbench CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workbench-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  node-tests:
+    name: Node tests and OpenAPI validation
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Run unit and security regression tests
+        run: npm test
+      - name: Validate OpenAPI and evidence catalog
+        run: npm run validate
+      - name: Report dependency vulnerabilities
+        run: npm audit --omit=dev --audit-level=high
+        continue-on-error: true
+
+  python-tests:
+    name: Python extraction tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run synthetic DEX-tracking regressions
+        working-directory: api/bulk-trace
+        run: python -m unittest -v test_extract.py
