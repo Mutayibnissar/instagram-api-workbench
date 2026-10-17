@@ -163,7 +163,7 @@ export function markdown(operations, summary) {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = new Set(process.argv.slice(2));
   if (args.has('--help')) {
-    console.log('Usage: node route-audit.mjs [--json] [--full]\n  default  print a compact summary\n  --json   print the full machine-readable inventory\n  --full   print the full Markdown inventory');
+    console.log('Usage: node route-audit.mjs [--json] [--full] [--csv] [--writes-only] [--needs-review]\\n  default       print a compact summary\\n  --json        print the machine-readable inventory\\n  --full        print the full Markdown inventory\\n  --csv         print a spreadsheet-friendly CSV inventory\\n  --writes-only include POST/PUT/PATCH/DELETE only\\n  --needs-review include operations flagged by static checks');
   } else {
     const spec = JSON.parse(fs.readFileSync(new URL('./openapi.json', import.meta.url), 'utf8'));
     const allOperations = extractOperations(spec);
