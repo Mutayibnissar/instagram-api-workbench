@@ -90,7 +90,7 @@ export function summarizeOperations(operations) {
   };
 }
 
-function markdown(operations, summary) {
+export function markdown(operations, summary) {
   const lines = [
     '# Static Route Evidence Audit',
     '',
@@ -127,7 +127,7 @@ function markdown(operations, summary) {
         !item.hasSummary ? 'missing summary' : '',
         item.undeclaredPathParams.length ? `undeclared path params: ${item.undeclaredPathParams.join(', ')}` : ''
       ].filter(Boolean).join('; ') || 'none detected by static checks';
-      return `| ${item.method} | \`${item.route.replaceAll('|', '\\\\|')}\` | \`${item.operationId.replaceAll('|', '\\\\|')}\` | ${item.evidenceCount} | ${flags.replaceAll('|', '\\\\|')} | ${item.dispatchVerified ? 'marked verified in source metadata' : 'not marked verified'} |`;
+      return `| ${item.method} | \`${item.route.replaceAll('|', '\\|')}\` | \`${item.operationId.replaceAll('|', '\\|')}\` | ${item.evidenceCount} | ${flags.replaceAll('|', '\\|')} | ${item.dispatchVerified ? 'marked verified in source metadata' : 'not marked verified'} |`;
     }),
     ''
   ];
