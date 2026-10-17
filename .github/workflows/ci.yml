@@ -31,6 +31,8 @@ jobs:
           cache-dependency-path: api/package-lock.json
       - name: Install locked dependencies
         run: npm ci
+      - name: Syntax-check browser workspace script
+        run: node --check live.mjs
       - name: Run unit and security regression tests
         run: npm test
       - name: Validate OpenAPI and evidence catalog
