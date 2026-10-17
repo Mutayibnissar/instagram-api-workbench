@@ -22,8 +22,9 @@ http.createServer(async(req,res)=>{
  if(req.headers.host!==new URL(origin).host){res.writeHead(403).end('Invalid local host');return;}
  if(await proxy(req,res))return;
  let p;
- try{p=decodeURIComponent(new URL(req.url,'http://localhost').pathname)}
+ try{const rawPath=(req.url||'/').split('?')[0];p=decodeURIComponent(rawPath)}
  catch{res.writeHead(400).end('Invalid path');return;}
+ if(!p.startsWith('/')||p.includes('\\')||p.split('/').some(segment=>segment==='..'||segment==='.')){res.writeHead(403).end('Forbidden');return;}
  const file=path.resolve(root,'.'+(p==='/'?'/index.html':p));
  if(!file.startsWith(root+path.sep)||p.includes('/node_modules/')){res.writeHead(403).end('Forbidden');return;}
  if(!['GET','HEAD'].includes(req.method)){res.setHeader('Allow','GET, HEAD');res.writeHead(405).end('Method not allowed');return;}
