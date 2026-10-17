@@ -23,6 +23,7 @@ function mountTools(){
  $('disconnect').onclick=async()=>{try{await localCall('/api/disconnect',{});$('connection-status').textContent='Not connected';show('Session removed from local server memory.')}catch(e){show(e.message)}};
  async function send(method,path,body='',type='application/json'){
   if(!method||!path)throw new Error('Choose an HTTP method and enter a path.');if(path.includes('{')||/%(?:\d+\$)?[sd]/.test(path))throw new Error('Replace path placeholders with actual values.');
+  if(['POST','PUT','PATCH','DELETE'].includes(method.toUpperCase())&&!window.confirm('This '+method.toUpperCase()+' request may change account data. Review the method and route before continuing.\n\n'+path.split('?')[0]+'\n\nContinue only if this is your own account and you intend to run it.'))throw new Error('Request cancelled before sending.');
   const state=await status();if(!state.connected){$('connection-status').textContent='Not connected';throw new Error('No credentials loaded locally. Connect again; restarting the server clears them.');}
   if(/^https?:/i.test(path)){const u=new URL(path);if(u.origin!==state.upstream)throw new Error('The test URL host must match the connected profile: '+state.upstream);path=u.pathname+u.search;}
   show('Sending '+method+' '+path+'…');$('raw-result').hidden=true;
