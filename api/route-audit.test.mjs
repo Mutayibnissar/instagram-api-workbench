@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {extractOperations, summarizeOperations} from './route-audit.mjs';
+import {extractOperations, filterOperations, summarizeOperations} from './route-audit.mjs';
 
 test('extracts method-level evidence without claiming live verification', () => {
   const operations = extractOperations({paths:{
@@ -56,4 +56,18 @@ test('flags write operations, missing documentation, and undeclared path paramet
   assert.equal(summary.operationsMissingOperationId, 1);
   assert.equal(summary.operationsMissingSummary, 1);
   assert.equal(summary.operationsWithUndeclaredPathParameters, 2);
+});
+
+test('filters route inventories into write-only and review queues', () => {
+  const operations = extractOperations({paths:{
+    '/health':{get:{operationId:'health_get',summary:'Health check'}},
+    '/users/{id}':{get:{operationId:'user_get',summary:'Get user',parameters:[{name:'id',in:'path'}]},delete:{operationId:'user_delete',summary:'Delete user',parameters:[{name:'id',in:'path'}]}},
+    '/unknown/{slug}':{post:{summary:'Create unknown'}}
+  }});
+  assert.deepEqual(filterOperations(operations,{writesOnly:true}).map(x=>x.method),['DELETE','POST']);
+  const review = filterOperations(operations,{needsReview:true});
+  assert.equal(review.some(x=>x.route==='/health'),false);
+  assert.equal(review.some(x=>x.route==='/unknown/{slug}'),true);
+  assert.equal(review.some(x=>x.method==='DELETE'),true);
+  assert.equal(filterOperations(operations,{writesOnly:true,needsReview:true}).every(x=>x.isWriteOperation),true);
 });
