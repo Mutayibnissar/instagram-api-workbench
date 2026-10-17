@@ -25,6 +25,8 @@ From the repository root:
 cd api
 npm ci
 npm test
+npx playwright install chromium
+npm run test:ui
 npm run validate
 npm start
 ```
@@ -44,6 +46,7 @@ reason to expose the loopback-only tool to other users.
 GitHub Actions runs these checks on pushes and pull requests to `main`:
 
 - Node unit and security regression tests
+- Playwright browser smoke test for desktop/mobile workspace loading, navigation, and runtime errors
 - OpenAPI JSON/YAML equivalence and schema validation
 - Evidence-catalog consistency checks
 - Python tests for conservative DEX receiver/method tracking
