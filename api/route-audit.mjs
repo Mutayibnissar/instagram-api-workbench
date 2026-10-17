@@ -113,7 +113,7 @@ export function csv(operations) {
   return [
     columns.map(([name]) => cell(name)).join(','),
     ...operations.map(item => columns.map(([, value]) => cell(value(item))).join(','))
-  ].join('\\n');
+  ].join('\n');
 }
 
 export function markdown(operations, summary) {
