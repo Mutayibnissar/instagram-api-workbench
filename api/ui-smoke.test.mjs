@@ -41,6 +41,14 @@ test('premium workspace loads and remains navigable in desktop and mobile viewpo
  assert.equal(await page.locator('#activity-list .activity-empty').count(),1);
  await page.locator('.workspace-nav a[href="#live-tools"]').click();
  await page.waitForFunction(()=>location.hash==='#live-tools');
+ await page.locator('#manual-request summary').click();
+ await page.locator('#manual-method').selectOption('POST');
+ await page.locator('#manual-path').fill('/api/v1/feed/timeline/');
+ let confirmationSeen=false;
+ page.once('dialog',async dialog=>{confirmationSeen=true;assert.match(dialog.message(),/may change account data/i);await dialog.dismiss();});
+ await page.locator('#manual-send').click();
+ await page.waitForFunction(()=>document.querySelector('#live-result')?.textContent.includes('Request cancelled before sending.'));
+ assert.equal(confirmationSeen,true);
  await page.setViewportSize({width:390,height:844});
  await page.locator('.hero-primary').scrollIntoViewIfNeeded();
  assert.equal(await page.locator('.workspace-hero').isVisible(),true);
