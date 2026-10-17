@@ -47,6 +47,7 @@ jobs:
           node route-audit.mjs --full > route-evidence-audit.md
           node route-audit.mjs --full --needs-review > route-review-queue.md
           node route-audit.mjs --full --writes-only > route-write-operations.md
+          node route-audit.mjs --csv > route-evidence-audit.csv
       - name: Upload route evidence report
         uses: actions/upload-artifact@v7
         with:
@@ -55,6 +56,7 @@ jobs:
             api/route-evidence-audit.md
             api/route-review-queue.md
             api/route-write-operations.md
+            api/route-evidence-audit.csv
           if-no-files-found: error
           retention-days: 14
       - name: Audit production dependencies

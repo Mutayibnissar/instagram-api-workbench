@@ -95,11 +95,13 @@ node route-audit.mjs --full > ../ROUTE_EVIDENCE_AUDIT.md
 node route-audit.mjs --full --needs-review > ../ROUTE_REVIEW_QUEUE.md
 node route-audit.mjs --full --writes-only > ../ROUTE_WRITE_OPERATIONS.md
 node route-audit.mjs --json > ../route-evidence-audit.json
+node route-audit.mjs --csv > ../route-evidence-audit.csv
 ```
 
 - `--needs-review` lists write methods and operations with missing IDs/summaries or undeclared path parameters.
 - `--writes-only` narrows the inventory to POST, PUT, PATCH, and DELETE operations.
-- GitHub Actions publishes the full report, review queue, and write-operation list as the `route-evidence-audit` artifact for 14 days.
+- `--csv` exports a spreadsheet-friendly inventory with properly quoted cells and review flags.
+- GitHub Actions publishes the Markdown reports and CSV inventory as the `route-evidence-audit` artifact for 14 days.
 
 These are static documentation checks. They do not verify live Instagram endpoint support, permissions, or payload safety. Review every potentially mutating request before sending it.
 
