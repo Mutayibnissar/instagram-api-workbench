@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import net from 'node:net';
+import http from 'node:http';
 import {spawn} from 'node:child_process';
 
 async function freePort(){
@@ -18,6 +19,14 @@ async function waitFor(url,child){
   await new Promise(r=>setTimeout(r,100));
  }
  throw new Error('Server did not become ready');
+}
+function requestWithHost(port,host){
+ return new Promise((resolve,reject)=>{
+  const req=http.get({hostname:'127.0.0.1',port,path:'/',headers:{Host:host}},res=>{
+   let body='';res.setEncoding('utf8');res.on('data',chunk=>body+=chunk);res.on('end',()=>resolve({status:res.statusCode,body}));
+  });
+  req.on('error',reject);
+ });
 }
 test('local server serves UI with baseline browser security headers',async t=>{
  const port=await freePort(),origin=`http://127.0.0.1:${port}`;
@@ -39,9 +48,9 @@ test('local server rejects foreign hosts and returns generic missing-file respon
  const child=spawn(process.execPath,['server.mjs'],{cwd:new URL('.',import.meta.url),env:{...process.env,PORT:String(port)},stdio:'ignore'});
  t.after(()=>child.kill('SIGTERM'));
  await waitFor(origin+'/',child);
- const foreign=await fetch(origin+'/',{headers:{Host:'evil.example'}});
+ const foreign=await requestWithHost(port,'evil.example');
  assert.equal(foreign.status,403);
- assert.doesNotMatch(await foreign.text(),/\/home\/|\/workspace\/|\/Users\//);
+ assert.doesNotMatch(foreign.body,/\/home\/|\/workspace\/|\/Users\//);
  const missing=await fetch(origin+'/not-a-real-file');
  assert.equal(missing.status,404);
  assert.equal(missing.headers.get('x-content-type-options'),'nosniff');
