@@ -91,7 +91,7 @@ test('oversized incoming bodies are rejected before any upstream request',async(
 test('oversized upstream responses become gateway errors rather than client errors',async()=>{
  let chunks=0;const f=fixture(async()=>new Response(new ReadableStream({pull(controller){if(chunks>=33){controller.close();return;}chunks++;controller.enqueue(new Uint8Array(1024*1024));}})));
  const token=await f.connect();const result=await f.request('/proxy/feed/timeline/',{headers:{'x-local-token':token}});
- assert.equal(result.status,502);assert.match(result.json().error,/could not complete/i);assert(!result.text.includes('sessionid=PRIVATE'));
+ assert.equal(result.status,502);assert.match(result.json().error,/size limit/i);assert(!result.text.includes('sessionid=PRIVATE'));
 });
 test('upstream timeouts return a bounded diagnostic without leaking transport details',async()=>{
  const f=fixture(async()=>{const error=new Error('socket timeout with SECRET');error.name='TimeoutError';throw error;});
