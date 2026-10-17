@@ -41,9 +41,8 @@ jobs:
         run: npm run test:ui
       - name: Validate OpenAPI and evidence catalog
         run: npm run validate
-      - name: Report dependency vulnerabilities
+      - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
-        continue-on-error: true
 
   python-tests:
     name: Python extraction tests

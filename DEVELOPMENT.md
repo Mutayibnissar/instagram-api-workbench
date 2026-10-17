@@ -50,8 +50,7 @@ GitHub Actions runs these checks on pushes and pull requests to `main`:
 - OpenAPI JSON/YAML equivalence and schema validation
 - Evidence-catalog consistency checks
 - Python tests for conservative DEX receiver/method tracking
-- A dependency vulnerability report (informational; it does not currently fail
-  the build on audit findings)
+- A blocking production-dependency audit for high-severity or critical vulnerabilities
 
 See the latest run in the repository's Actions tab.
 
