@@ -64,3 +64,19 @@ test('local server rejects foreign hosts and returns generic missing-file respon
  assert.equal(missing.status,404);
  assert.equal(missing.headers.get('x-content-type-options'),'nosniff');
 });
+
+test('static server enforces read-only methods and blocks traversal',async t=>{
+ const port=await freePort(),origin=`http://127.0.0.1:${port}`;
+ const child=spawn(process.execPath,['server.mjs'],{cwd:new URL('.',import.meta.url),env:{...process.env,PORT:String(port)},stdio:'ignore'});
+ t.after(()=>child.kill('SIGTERM'));
+ await waitFor(origin+'/',child);
+ const post=await fetch(origin+'/',{method:'POST'});
+ assert.equal(post.status,405);assert.equal(post.headers.get('allow'),'GET, HEAD');
+ const traversal=await fetch(origin+'/%2e%2e/server.mjs');
+ assert.equal(traversal.status,403);
+ const modules=await fetch(origin+'/node_modules/swagger-ui-dist/package.json');
+ assert.equal(modules.status,403);
+ const head=await fetch(origin+'/',{method:'HEAD'});
+ assert.equal(head.status,200);assert.equal(await head.text(),'');
+ assert.ok(Number(head.headers.get('content-length'))>0);
+});
