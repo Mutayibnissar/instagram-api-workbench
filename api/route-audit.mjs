@@ -117,13 +117,13 @@ function markdown(operations, summary) {
     }),
     ''
   ];
-  return lines.join('\\n');
+  return lines.join('\n');
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = new Set(process.argv.slice(2));
   if (args.has('--help')) {
-    console.log('Usage: node route-audit.mjs [--json] [--full]\\n  default  print a compact summary\\n  --json   print the full machine-readable inventory\\n  --full   print the full Markdown inventory');
+    console.log('Usage: node route-audit.mjs [--json] [--full]\n  default  print a compact summary\n  --json   print the full machine-readable inventory\n  --full   print the full Markdown inventory');
   } else {
     const spec = JSON.parse(fs.readFileSync(new URL('./openapi.json', import.meta.url), 'utf8'));
     const operations = extractOperations(spec);
