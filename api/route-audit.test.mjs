@@ -97,6 +97,21 @@ test('exports spreadsheet-friendly CSV with escaped quotes and stable rows', () 
   assert.ok(rows[1].includes('""quote"" second line'));
 });
 
+test('CSV includes method-status metadata and the static evidence records', () => {
+  const operations = extractOperations({paths:{
+    '/feed':{
+      'x-method-status':'static-configuration-traced',
+      get:{operationId:'feed_get','x-method-evidence':[{dex:'classes.dex',offset:42,string_index:7}]}
+    }
+  }});
+  const report = csv(operations);
+  assert.ok(report.includes('"Method status metadata"'));
+  assert.ok(report.includes('"Static evidence metadata (JSON)"'));
+  assert.ok(report.includes('"static-configuration-traced"'));
+  assert.ok(report.includes('""dex"":""classes.dex""'));
+  assert.ok(report.includes('""offset"":42'));
+});
+
 test('neutralizes spreadsheet formula prefixes in exported CSV cells', () => {
   const operations = extractOperations({paths:{
     '/safe-route':{get:{operationId:'=2+2',summary:' @SUM(A1:A2)'}}
