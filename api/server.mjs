@@ -26,10 +26,13 @@ http.createServer(async(req,res)=>{
  catch{res.writeHead(400).end('Invalid path');return;}
  const file=path.resolve(root,'.'+(p==='/'?'/index.html':p));
  if(!file.startsWith(root+path.sep)||p.includes('/node_modules/')){res.writeHead(403).end('Forbidden');return;}
+ if(!['GET','HEAD'].includes(req.method)){res.setHeader('Allow','GET, HEAD');res.writeHead(405).end('Method not allowed');return;}
  fs.stat(file,(err,s)=>{
   if(err||!s.isFile()){res.writeHead(404).end('Not found');return;}
   res.setHeader('Content-Type',({'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.yaml':'application/yaml; charset=utf-8','.txt':'text/plain; charset=utf-8'})[path.extname(file)]||'application/octet-stream');
-  res.setHeader('Cache-Control','no-store');
-  fs.createReadStream(file).on('error',()=>{if(!res.headersSent)res.writeHead(500);res.end('Unable to read file');}).pipe(res);
+  res.setHeader('Cache-Control','no-store');res.setHeader('Content-Length',String(s.size));
+  if(req.method==='HEAD'){res.writeHead(200);res.end();return;}
+  res.writeHead(200);
+  fs.createReadStream(file).on('error',()=>{if(!res.headersSent){res.writeHead(500);res.end('Unable to read file');}else res.destroy();}).pipe(res);
  });
 }).listen(port,'127.0.0.1',()=>console.log(`Instagram API catalog: ${origin}/`));
