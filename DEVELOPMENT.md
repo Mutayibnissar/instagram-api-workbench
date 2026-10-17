@@ -52,7 +52,7 @@ GitHub Actions runs these checks on pushes and pull requests to `main`:
 - Python tests for conservative DEX receiver/method tracking
 - A blocking production-dependency audit for high-severity or critical vulnerabilities
 
-See the latest run in the repository's Actions tab.
+See the latest run in the repository's Actions tab. Dependabot checks npm dependencies and GitHub Actions weekly; review updates and keep the lockfile and CI green.
 
 ## Security boundaries
 
