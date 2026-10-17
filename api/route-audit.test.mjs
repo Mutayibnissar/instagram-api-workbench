@@ -103,5 +103,5 @@ test('neutralizes spreadsheet formula prefixes in exported CSV cells', () => {
   const report = csv(operations);
   const apostrophe = String.fromCharCode(39);
   assert.ok(report.includes('"' + apostrophe + '=2+2"'));
-  assert.ok(report.includes('" ' + apostrophe + '@SUM(A1:A2)"'));
+  assert.ok(report.includes('"' + apostrophe + ' @SUM(A1:A2)"'));
 });
