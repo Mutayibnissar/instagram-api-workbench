@@ -33,3 +33,27 @@ test('summary clearly distinguishes source metadata from live endpoint checks', 
   assert.equal(summary.dispatchVerifiedBySourceMetadata,1);
   assert.equal(summary.liveEndpointVerification,'not performed by this report');
 });
+
+test('flags write operations, missing documentation, and undeclared path parameters', () => {
+  const operations = extractOperations({paths:{
+    '/users/{userId}':{
+      get:{operationId:'get_user',summary:'Get a user',parameters:[{name:'userId',in:'path',required:true,schema:{type:'string'}}]},
+      delete:{parameters:[]}
+    },
+    '/posts/{postId}':{
+      post:{operationId:'create_post',summary:'Create post'}
+    }
+  }});
+  const getUser = operations.find(x => x.method === 'GET');
+  const deleteUser = operations.find(x => x.method === 'DELETE');
+  const createPost = operations.find(x => x.method === 'POST');
+  assert.deepEqual(getUser.undeclaredPathParams, []);
+  assert.equal(deleteUser.isWriteOperation, true);
+  assert.deepEqual(deleteUser.undeclaredPathParams, ['userId']);
+  assert.deepEqual(createPost.undeclaredPathParams, ['postId']);
+  const summary = summarizeOperations(operations);
+  assert.equal(summary.writeOperationsRequireCarefulReview, 2);
+  assert.equal(summary.operationsMissingOperationId, 1);
+  assert.equal(summary.operationsMissingSummary, 1);
+  assert.equal(summary.operationsWithUndeclaredPathParameters, 2);
+});

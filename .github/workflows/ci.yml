@@ -42,7 +42,16 @@ jobs:
       - name: Validate OpenAPI and evidence catalog
         run: npm run validate
       - name: Generate offline route evidence audit
-        run: npm run audit:routes
+        run: |
+          npm run audit:routes
+          node route-audit.mjs --full > route-evidence-audit.md
+      - name: Upload route evidence report
+        uses: actions/upload-artifact@v7
+        with:
+          name: route-evidence-audit
+          path: api/route-evidence-audit.md
+          if-no-files-found: error
+          retention-days: 14
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
 
