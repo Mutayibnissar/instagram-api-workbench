@@ -45,11 +45,16 @@ jobs:
         run: |
           npm run audit:routes
           node route-audit.mjs --full > route-evidence-audit.md
+          node route-audit.mjs --full --needs-review > route-review-queue.md
+          node route-audit.mjs --full --writes-only > route-write-operations.md
       - name: Upload route evidence report
         uses: actions/upload-artifact@v7
         with:
           name: route-evidence-audit
-          path: api/route-evidence-audit.md
+          path: |
+            api/route-evidence-audit.md
+            api/route-review-queue.md
+            api/route-write-operations.md
           if-no-files-found: error
           retention-days: 14
       - name: Audit production dependencies

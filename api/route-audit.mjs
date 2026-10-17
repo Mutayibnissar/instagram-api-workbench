@@ -45,6 +45,20 @@ export function extractOperations(spec) {
   return operations.sort((a, b) => a.method.localeCompare(b.method) || a.route.localeCompare(b.route));
 }
 
+export function filterOperations(operations, {writesOnly = false, needsReview = false} = {}) {
+  return operations.filter(item => {
+    if (writesOnly && !(item.isWriteOperation ?? WRITE_METHODS.has(item.method))) return false;
+    if (needsReview) {
+      const flagged = (item.isWriteOperation ?? WRITE_METHODS.has(item.method))
+        || !(item.hasOperationId ?? Boolean(item.operationId))
+        || !(item.hasSummary ?? Boolean(item.summary))
+        || (item.undeclaredPathParams ?? []).length > 0;
+      if (!flagged) return false;
+    }
+    return true;
+  });
+}
+
 export function summarizeOperations(operations) {
   const methods = {};
   let withEvidence = 0;
@@ -126,7 +140,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     console.log('Usage: node route-audit.mjs [--json] [--full]\n  default  print a compact summary\n  --json   print the full machine-readable inventory\n  --full   print the full Markdown inventory');
   } else {
     const spec = JSON.parse(fs.readFileSync(new URL('./openapi.json', import.meta.url), 'utf8'));
-    const operations = extractOperations(spec);
+    const allOperations = extractOperations(spec);
+    const operations = filterOperations(allOperations, {writesOnly: args.has('--writes-only'), needsReview: args.has('--needs-review')});
     const summary = summarizeOperations(operations);
     if (args.has('--json')) console.log(JSON.stringify({ summary, operations }, null, 2));
     else if (args.has('--full')) console.log(markdown(operations, summary));
