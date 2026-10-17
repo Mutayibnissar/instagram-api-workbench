@@ -168,11 +168,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   if (unknownArgs.length) {
     console.error('Unknown option(s): ' + unknownArgs.join(', ') + '\nRun with --help to see supported options.');
     process.exitCode = 2;
-  } else if (outputModes.length > 1) {
-    console.error('Choose only one output mode: --json, --full, or --csv.');
-    process.exitCode = 2;
   } else if (new Set(rawArgs).size !== rawArgs.length) {
     console.error('Duplicate options are not allowed.');
+    process.exitCode = 2;
+  } else if (outputModes.length > 1) {
+    console.error('Choose only one output mode: --json, --full, or --csv.');
     process.exitCode = 2;
   } else if (rawArgs.includes('--help')) {
     console.log('Usage: node route-audit.mjs [--json | --full | --csv] [--writes-only] [--needs-review]\n  default       print a compact summary\n  --json        print the machine-readable inventory\n  --full        print the full Markdown inventory\n  --csv         print a spreadsheet-friendly CSV inventory\n  --writes-only include POST/PUT/PATCH/DELETE only\n  --needs-review include operations flagged by static checks');
