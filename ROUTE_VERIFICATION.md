@@ -9,7 +9,7 @@ node route-audit.mjs --full > ../ROUTE_EVIDENCE_AUDIT.md
 node route-audit.mjs --json > ../route-evidence-audit.json
 ```
 
-The report reads the checked-in OpenAPI document only. It does **not** connect to Instagram, use credentials, or mark endpoints as live-verified. It also flags write methods for careful review, missing operation IDs or summaries, and path placeholders without declared path parameters. These are documentation-quality checks, not proof that an endpoint works or is safe. “Static method evidence” means the source-analysis pipeline retained a method/path observation; it does not establish server support, permissions, required headers, payload correctness, or successful dispatch.
+The report reads the checked-in OpenAPI document only. CI uploads the full Markdown report as a downloadable artifact named `route-evidence-audit` (retained for 14 days). It does **not** connect to Instagram, use credentials, or mark endpoints as live-verified. It also flags write methods for careful review, missing operation IDs or summaries, and path placeholders without declared path parameters. These are documentation-quality checks, not proof that an endpoint works or is safe. “Static method evidence” means the source-analysis pipeline retained a method/path observation; it does not establish server support, permissions, required headers, payload correctness, or successful dispatch.
 
 ## Controlled live verification
 
