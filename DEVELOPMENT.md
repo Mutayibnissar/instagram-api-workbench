@@ -28,6 +28,7 @@ npm test
 npx playwright install chromium
 npm run test:ui
 npm run validate
+npm run audit:routes
 npm start
 ```
 
@@ -49,6 +50,7 @@ GitHub Actions runs these checks on pushes and pull requests to `main`:
 - Playwright browser smoke test for desktop/mobile workspace loading, navigation, and runtime errors
 - OpenAPI JSON/YAML equivalence and schema validation
 - Evidence-catalog consistency checks
+- Offline route evidence audit summary (static metadata only; no live requests)
 - Python tests for conservative DEX receiver/method tracking
 - A blocking production-dependency audit for high-severity or critical vulnerabilities
 
