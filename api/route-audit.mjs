@@ -111,7 +111,12 @@ export function csv(operations) {
       (item.undeclaredPathParams ?? []).length ? 'undeclared path params: ' + item.undeclaredPathParams.join('; ') : ''
     ].filter(Boolean).join('; ') || 'none detected by static checks']
   ];
-  const cell = value => { const normalized = String(value ?? '').replace(/[\r\n]+/g, ' '); const safe = /^[\t ]*[=+\-@]/.test(normalized) ? "'" + normalized : normalized; return '"' + safe.replaceAll('"', '""') + '"'; };
+  const cell = value => {
+    const normalized = String(value ?? '').replace(/[\r\n]+/g, ' ');
+    // Spreadsheet apps may ignore leading ASCII control characters before formula markers.
+    const safe = /^[\u0000-\u0020]*[=+\-@]/.test(normalized) ? "'" + normalized : normalized;
+    return '"' + safe.replaceAll('"', '""') + '"';
+  };
   return [
     columns.map(([name]) => cell(name)).join(','),
     ...operations.map(item => columns.map(([, value]) => cell(value(item))).join(','))
