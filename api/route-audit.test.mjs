@@ -85,10 +85,10 @@ test('escapes pipe characters in Markdown table cells with one escape', () => {
 
 test('exports spreadsheet-friendly CSV with escaped quotes and stable rows', () => {
   const operations = extractOperations({paths:{
-    '/users/"quoted"|archive':{get:{operationId:'get,"archive',summary:'Contains, comma and "quote"\\nsecond line'}}
+    '/users/"quoted"|archive':{get:{operationId:'get,"archive',summary:'Contains, comma and "quote"\nsecond line'}}
   }});
   const report = csv(operations);
-  const rows = report.split('\\n');
+  const rows = report.split('\n');
   assert.equal(rows.length, 2);
   assert.ok(rows[0].startsWith('"Method","Route"'));
   assert.ok(rows[1].startsWith('"GET",'));
