@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {extractOperations, filterOperations, summarizeOperations} from './route-audit.mjs';
+import {extractOperations, filterOperations, markdown, summarizeOperations} from './route-audit.mjs';
 
 test('extracts method-level evidence without claiming live verification', () => {
   const operations = extractOperations({paths:{
@@ -70,4 +70,15 @@ test('filters route inventories into write-only and review queues', () => {
   assert.equal(review.some(x=>x.route==='/unknown/{slug}'),true);
   assert.equal(review.some(x=>x.method==='DELETE'),true);
   assert.equal(filterOperations(operations,{writesOnly:true,needsReview:true}).every(x=>x.isWriteOperation),true);
+});
+
+test('escapes pipe characters in Markdown table cells with one escape', () => {
+  const operations = extractOperations({paths:{
+    '/users/{id}|archive':{get:{operationId:'get|archive',summary:'Archive candidate'}}
+  }});
+  const report = markdown(operations, summarizeOperations(operations));
+  const slash = String.fromCharCode(92);
+  assert.ok(report.includes('/users/{id}' + slash + '|archive'));
+  assert.ok(report.includes('get' + slash + '|archive'));
+  assert.ok(!report.includes(slash + slash + '|archive'));
 });
