@@ -77,7 +77,8 @@ test('escapes pipe characters in Markdown table cells with one escape', () => {
     '/users/{id}|archive':{get:{operationId:'get|archive',summary:'Archive candidate'}}
   }});
   const report = markdown(operations, summarizeOperations(operations));
-  assert.ok(report.includes(String.raw`/users/{id}\|archive`));
-  assert.ok(report.includes(String.raw`get\|archive`));
-  assert.ok(!report.includes(String.raw`\\|archive`));
+  const slash = String.fromCharCode(92);
+  assert.ok(report.includes('/users/{id}' + slash + '|archive'));
+  assert.ok(report.includes('get' + slash + '|archive'));
+  assert.ok(!report.includes(slash + slash + '|archive'));
 });
