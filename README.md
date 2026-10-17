@@ -10,7 +10,7 @@ These counts describe recovered client configuration, **not endpoints verified t
 
 ## Run
 
-Install Node.js 20 or later, then:
+Install Node.js 22.19.0 or later for development and validation, then:
 
 ```sh
 git clone https://github.com/kernelpanic0x11/instagram-api-workbench.git
