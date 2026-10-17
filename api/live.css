@@ -22,3 +22,6 @@ body{background:#f3f5fa}.workspace-hero{position:relative;overflow:hidden;backgr
 .unresolved-controls input,.unresolved-controls select{display:block;width:100%;margin-top:7px}
 .unresolved-count{font-size:13px!important}
 @media(max-width:700px){.unresolved-controls{grid-template-columns:1fr;gap:8px}}
+
+.unresolved-actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 18px}
+@media(max-width:700px){.unresolved-actions .btn{width:100%}}

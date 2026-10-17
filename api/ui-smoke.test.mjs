@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import net from 'node:net';
+import {readFile} from 'node:fs/promises';
 import {spawn} from 'node:child_process';
 import {chromium} from 'playwright';
 
@@ -47,6 +48,14 @@ test('premium workspace loads and remains navigable in desktop and mobile viewpo
  await page.locator('.unresolved-evidence-filter').selectOption('with');
  assert.match(await page.locator('.unresolved-count').innerText(),/matching routes/i);
  await page.locator('.unresolved-evidence-filter').selectOption('all');
+ const downloadPromise=page.waitForEvent('download');
+ await page.locator('.unresolved-export').click();
+ const download=await downloadPromise;
+ assert.equal(download.suggestedFilename(),'unresolved-route-candidates.json');
+ const exported=JSON.parse(await readFile(await download.path(),'utf8'));
+ assert.equal(exported.liveEndpointVerification,'not performed');
+ assert.ok(exported.count>0);
+ assert.equal(exported.routes.length,exported.count);
  await page.locator('.workspace-nav a[href="#live-tools"]').click();
  await page.waitForFunction(()=>location.hash==='#live-tools');
  await page.locator('#manual-request summary').click();
