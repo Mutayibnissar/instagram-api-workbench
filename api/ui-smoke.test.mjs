@@ -39,6 +39,8 @@ test('premium workspace loads and remains navigable in desktop and mobile viewpo
  assert.match(await page.locator('.hero-copy h1').innerText(),/API research workspace/i);
  assert.equal(await page.locator('.workspace-nav a').count(),5);
  assert.equal(await page.locator('#connection-status').count(),1);
+ assert.equal(await page.locator('#connection-status').getAttribute('role'),'status');
+ assert.equal(await page.locator('#connection-status').getAttribute('aria-live'),'polite');
  assert.equal(await page.locator('#activity-list .activity-empty').count(),1);
  assert.equal(await page.locator('.unresolved-evidence-filter option').count(),3);
  assert.match(await page.locator('.unresolved-count').innerText(),/matching routes/i);
