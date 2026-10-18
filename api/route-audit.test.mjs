@@ -112,14 +112,20 @@ test('CSV includes method-status metadata and the static evidence records', () =
   assert.ok(report.includes('""offset"":42'));
 });
 
-test('neutralizes spreadsheet formula prefixes in exported CSV cells', () => {
+test('neutralizes spreadsheet formula prefixes after leading ASCII control characters', () => {
   const operations = extractOperations({paths:{
-    '/safe-route':{get:{operationId:'=2+2',summary:' @SUM(A1:A2)'}}
+    '/safe-route':{get:{operationId:'=2+2',summary:' @SUM(A1:A2)'}},
+    '/control-route':{get:{operationId:'\u0000=1+1',summary:'\u000b+SUM(A1:A2)'}},
+    '/form-feed-route':{get:{operationId:'\u000c-1+1',summary:'\t@SUM(A1:A2)'}}
   }});
   const report = csv(operations);
   const apostrophe = String.fromCharCode(39);
   assert.ok(report.includes('"' + apostrophe + '=2+2"'));
   assert.ok(report.includes('"' + apostrophe + ' @SUM(A1:A2)"'));
+  assert.ok(report.includes('"' + apostrophe + '\u0000=1+1"'));
+  assert.ok(report.includes('"' + apostrophe + '\u000b+SUM(A1:A2)"'));
+  assert.ok(report.includes('"' + apostrophe + '\u000c-1+1"'));
+  assert.ok(report.includes('"' + apostrophe + '\t@SUM(A1:A2)"'));
 });
 
 
