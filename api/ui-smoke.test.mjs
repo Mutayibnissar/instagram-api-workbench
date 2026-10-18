@@ -56,6 +56,14 @@ test('premium workspace loads and remains navigable in desktop and mobile viewpo
  assert.equal(exported.liveEndpointVerification,'not performed');
  assert.ok(exported.count>0);
  assert.equal(exported.routes.length,exported.count);
+ const csvDownloadPromise=page.waitForEvent('download');
+ await page.locator('.unresolved-export-csv').click();
+ const csvDownload=await csvDownloadPromise;
+ assert.equal(csvDownload.suggestedFilename(),'unresolved-route-candidates.csv');
+ const csvText=await readFile(await csvDownload.path(),'utf8');
+ assert.match(csvText,/^"Route","Description","Evidence JSON"\\r?\\n/);
+ assert.ok(csvText.split(/\\r?\\n/).length>2);
+ assert.ok(!csvText.includes('undefined'));
  await page.locator('.workspace-nav a[href="#live-tools"]').click();
  await page.waitForFunction(()=>location.hash==='#live-tools');
  await page.locator('#manual-request summary').click();
